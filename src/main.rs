@@ -6,6 +6,9 @@ pub use server::*;
 pub mod client;
 pub use client::*;
 
+pub mod shared;
+pub use shared::*;
+
 fn main() {
     // Cli argunments passing using clap
     let matches = Command::new("P2P File Transfer")
@@ -66,7 +69,7 @@ fn main() {
 
     match host_or_not {
         true => {
-            let hosting = FileServer::new(address.to_string(), *port, None, code);
+            let hosting = FileServer::new(address.to_string(), *port, None, code, path.to_string());
 
             hosting.run();
 
@@ -90,7 +93,7 @@ fn main() {
             //
             let client = FileClient::new(address.to_string(), *port, code, path.to_string());
 
-            FileClient::run(&client);
+            FileClient::run(&client).unwrap();
         }
     }
 }

@@ -1,0 +1,7 @@
+1. how tcp works we only have to send and recieve data as in the form of bytes
+2. how to send and recieve data in bytes
+3. how to send and recieve data in chunks
+4. how to serialize and deserialize data
+5. how to manage the file structure on rust
+6. how does mutltithreading work in rust - [we can use threads to run multiple functions at the same time]
+7. async works in rust and how to use it - [we can use async to run multiple functions at the same time]
