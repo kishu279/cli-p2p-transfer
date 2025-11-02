@@ -1,11 +1,10 @@
 use clap::{Arg, Command};
-use std::{
-    io::{Read, Write},
-    net::TcpStream,
-};
 
 pub mod server;
 pub use server::*;
+
+pub mod client;
+pub use client::*;
 
 fn main() {
     // Cli argunments passing using clap
@@ -44,6 +43,13 @@ fn main() {
                 .num_args(1)
                 .help("code"),
         )
+        .arg(
+            Arg::new("location")
+                .short('l')
+                .long("path")
+                .num_args(1)
+                .help("set the location for upload/download"),
+        )
         .get_matches();
 
     // get the values from the cli arguments
@@ -51,31 +57,40 @@ fn main() {
     let port = matches.get_one::<u16>("port").unwrap(); // get the port
     let address = matches.get_one::<String>("address").unwrap(); // get the ip address
     let code: Option<u16> = matches.get_one("code").copied();
+    let path: &String = matches.get_one("location").unwrap();
 
     println!("port : {:?}", port);
     println!("address : {:?}", address);
     println!("code : {:?}", code);
+    println!("path : {:?}", path);
 
     match host_or_not {
         true => {
             let hosting = FileServer::new(address.to_string(), *port, None, code);
 
             hosting.run();
+
+            // sending 1024 bytes on each iteration to each client
         }
         false => {
-            println!("Client");
+            // println!("Client");
 
-            // connect to the server using the ip address and port
-            let mut stream = TcpStream::connect(format!("{}:{}", address, port)).unwrap();
+            // // connect to the server using the ip address and port
+            // let mut stream = TcpStream::connect(format!("{}:{}", address, port)).unwrap();
 
-            let _ = stream.write(b"Hello World!").unwrap();
-            let mut buffer = [0; 1024];
-            let response = stream.read(&mut buffer).unwrap();
+            // let _ = stream.write(b"Hello World!").unwrap();
+            // let mut buffer = [0; 1024];
+            // let response = stream.read(&mut buffer).unwrap();
 
-            println!(
-                "Response after sending to the server {}",
-                String::from_utf8_lossy(&buffer[..response])
-            );
+            // println!(
+            //     "Response after sending to the server {}",
+            //     String::from_utf8_lossy(&buffer[..response])
+            // );
+
+            //
+            let client = FileClient::new(address.to_string(), *port, code, path.to_string());
+
+            FileClient::run(&client);
         }
     }
 }

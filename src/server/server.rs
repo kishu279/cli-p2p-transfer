@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use std::{
     io::{BufRead, BufReader, Read, Write},
     net::{TcpListener, TcpStream},
@@ -65,11 +66,22 @@ impl FileServer {
         // thread::sleep(Duration::from_secs(5));
 
         let mut buf = [0u8; 1024];
-        let n = stream.read(&mut buf).unwrap();
-        println!("Server recieved {}", String::from_utf8_lossy(&buf[..n]));
-        stream
-            .write_all(b"connected to server successfully")
-            .unwrap();
-        stream.flush().unwrap();
+
+        loop {
+            let n = match stream.read(&mut buf) {
+                Ok(0) => break,
+                Ok(n) => n,
+                Err(_) => 0,
+            };
+
+            println!("Server recieved {}", String::from_utf8_lossy(&buf[..n]));
+            if stream
+                .write_all(b"connected to server successfully\n")
+                .is_err()
+            {
+                break;
+            }
+            stream.flush().ok();
+        }
     }
 }
