@@ -1,6 +1,8 @@
 use std::{
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Read, Write},
     net::{TcpListener, TcpStream},
+    thread,
+    time::Duration,
 };
 
 #[allow(dead_code)]
@@ -38,25 +40,36 @@ impl FileServer {
 
             println!("New Connection : {:?}", stream.peer_addr().unwrap());
 
-            Self::handle_connection(stream);
+            thread::spawn(|| {
+                Self::handle_connection(stream);
+            });
         }
     }
 
-    // PRIVATE METHODS
-
     // handle connection to the server
-    fn handle_connection(stream: TcpStream) {
-        let buf_reader = BufReader::new(&stream);
-        let http_request: Vec<_> = buf_reader
-            .lines()
-            .map(|result| result.unwrap())
-            .take_while(|line| !line.is_empty())
-            .collect();
+    fn handle_connection(mut stream: TcpStream) {
+        // let buf_reader = BufReader::new(&stream);
+        // let http_request: Vec<_> = buf_reader
+        //     .lines()
+        //     .map(|result| result.unwrap())
+        //     .take_while(|line| !line.is_empty())
+        //     .collect();
 
-        println!(
-            "https request from {:?} : {:?}",
-            stream.peer_addr().unwrap(),
-            http_request
-        )
+        // println!(
+        //     "https request from {:?} : {:?}",
+        //     stream.peer_addr().unwrap(),
+        //     http_request
+        // );
+
+        // single threaded test
+        // thread::sleep(Duration::from_secs(5));
+
+        let mut buf = [0u8; 1024];
+        let n = stream.read(&mut buf).unwrap();
+        println!("Server recieved {}", String::from_utf8_lossy(&buf[..n]));
+        stream
+            .write_all(b"connected to server successfully")
+            .unwrap();
+        stream.flush().unwrap();
     }
 }

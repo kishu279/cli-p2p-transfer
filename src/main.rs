@@ -1,4 +1,8 @@
 use clap::{Arg, Command};
+use std::{
+    io::{Read, Write},
+    net::TcpStream,
+};
 
 pub mod server;
 pub use server::*;
@@ -62,6 +66,16 @@ fn main() {
             println!("Client");
 
             // connect to the server using the ip address and port
+            let mut stream = TcpStream::connect(format!("{}:{}", address, port)).unwrap();
+
+            let _ = stream.write(b"Hello World!").unwrap();
+            let mut buffer = [0; 1024];
+            let response = stream.read(&mut buffer).unwrap();
+
+            println!(
+                "Response after sending to the server {}",
+                String::from_utf8_lossy(&buffer[..response])
+            );
         }
     }
 }
