@@ -43,9 +43,9 @@ fn main() {
         .get_matches();
 
     // get the values from the cli arguments
-    let host_or_not: bool = matches.get_flag("host"); // is the user want to be host?
-    let port: &u16 = matches.get_one::<u16>("port").unwrap(); // get the port
-    let address: &str = matches.get_one::<String>("address").unwrap(); // get the ip address
+    let host_or_not = matches.get_flag("host"); // is the user want to be host?
+    let port = matches.get_one::<u16>("port").unwrap(); // get the port
+    let address = matches.get_one::<String>("address").unwrap(); // get the ip address
     let code: Option<u16> = matches.get_one("code").copied();
 
     println!("port : {:?}", port);
@@ -54,7 +54,9 @@ fn main() {
 
     match host_or_not {
         true => {
-            // let hosting = FileServer::new(address, port, max_connection, code)
+            let hosting = FileServer::new(address.to_string(), *port, None, code);
+
+            hosting.run();
         }
         false => {
             println!("Client");
