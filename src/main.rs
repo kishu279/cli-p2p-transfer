@@ -1,0 +1,65 @@
+use clap::{Arg, Command};
+
+pub mod server;
+pub use server::*;
+
+fn main() {
+    // Cli argunments passing using clap
+    let matches = Command::new("P2P File Transfer")
+        .version("0.1.0")
+        .about("A simple file transfer program using TCP protocol.")
+        // host
+        .arg(
+            Arg::new("host")
+                .short('s')
+                .long("host")
+                .num_args(0)
+                .help("want to be host"),
+        )
+        .arg(
+            Arg::new("port")
+                .short('p')
+                .long("port")
+                .num_args(1)
+                .value_parser(clap::value_parser!(u16))
+                .default_value("8080")
+                .help("specify the port"),
+        )
+        .arg(
+            Arg::new("address")
+                .short('i')
+                .long("address")
+                .default_value("127.0.0.1")
+                .help("which host you want to connect on the local network"),
+        )
+        .arg(
+            Arg::new("code")
+                .short('c')
+                .long("code")
+                .value_parser(clap::value_parser!(u16))
+                .num_args(1)
+                .help("code"),
+        )
+        .get_matches();
+
+    // get the values from the cli arguments
+    let host_or_not: bool = matches.get_flag("host"); // is the user want to be host?
+    let port: &u16 = matches.get_one::<u16>("port").unwrap(); // get the port
+    let address: &str = matches.get_one::<String>("address").unwrap(); // get the ip address
+    let code: Option<u16> = matches.get_one("code").copied();
+
+    println!("port : {:?}", port);
+    println!("address : {:?}", address);
+    println!("code : {:?}", code);
+
+    match host_or_not {
+        true => {
+            // let hosting = FileServer::new(address, port, max_connection, code)
+        }
+        false => {
+            println!("Client");
+
+            // connect to the server using the ip address and port
+        }
+    }
+}
